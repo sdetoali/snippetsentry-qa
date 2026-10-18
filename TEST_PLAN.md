@@ -57,7 +57,7 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 2. Search for the email, then open the user.
 
 **Expected:** status **Invited**, Admin is ticked in the panel, the panel shows "Invitation sent: 1", and the invite email arrives.
-**Note:** the list keeps showing Pending until a page reload (see BUG-01). The automated test reloads before asserting.
+**Note:** in automated runs the list still showed Pending immediately after saving. When I checked by hand it showed Invited, with or without a reload (see BUG-01). The automated test reloads before asserting so it checks the saved state.
 
 ### TC-03: Bulk Invite moves selected users to Invited
 1. Create a Pending user, select its row, and click Bulk Invite.
@@ -103,7 +103,7 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 2. Look for a way to reactivate them.
 
 **Expected:** login is refused with a clear message, and an admin has a way to restore the user.
-**Observed:** a suspended user's panel still shows **Suspend**, with no Reactivate option, and Send email invite is still enabled (see BUG-03 and Q-01).
+**Observed (manual):** a suspended user's panel still shows **Suspend**. There is no Reactivate, Unsuspend or Activate option in the panel, the row or the filter, and Send email invite is still clickable (see BUG-03 and Q-01).
 
 ### TC-10: Logged-in user and last-admin protection
 - Try to suspend, delete, or remove Admin from your own account.
@@ -133,20 +133,18 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 ## Beyond functional testing
 
 - **Security:** authorization in TC-13. Input like `<script>alert(1)</script>` in the name and notes fields should be shown as plain text and never run, both in the grid and in Export. Check that users from other customer accounts can't be read.
-- **Accessibility:** keyboard-only use of the panel and dialogs, including focus moving into a dialog and back out. Labels exist on the form fields. Each row checkbox's accessible name is the user's internal ID (e.g. "01M56WR23V…"), so a screen reader announces a meaningless string (see BUG-04).
-- **Usability:** the status should update without a reload (BUG-01). Confirmation text should name the action (BUG-02).
+- **Usability:** confirmation text should name the action (BUG-02). A suspended user should have a visible way back (BUG-03).
 - **Performance:** the list with hundreds of users (the table is virtualized), and Bulk Invite or Upload with large selections or files.
 - **Email:** content, links and sender of the invite emails, and whether re-invites are rate-limited.
 
 ## Bugs and open questions
 
-| ID | Summary | Severity |
-|---|---|---|
-| BUG-01 | After Add User with "Send email invite", the list shows **Pending** until a page reload. The real status is Invited. | Medium |
-| BUG-02 | Delete and Suspend share the confirmation "Are you sure you want to update status of this user?". It doesn't say the user will be deleted. | Medium |
-| BUG-03 | A suspended user's panel still shows **Suspend**, with no way to reactivate them. | Medium (or missing feature) |
-| BUG-04 | Row checkboxes are announced by internal user ID, not by the user's name. | Low (accessibility) |
-| Q-01 | Should "Send email invite" be available for suspended users? | Question |
+| ID | Summary | Severity | Verified manually |
+|---|---|---|---|
+| BUG-01 | After Add User with "Send email invite", the list showed **Pending** instead of Invited, but only in automated runs immediately after saving. | Low (intermittent) | **Not reproduced.** By hand it showed Invited, with or without a reload
+| BUG-02 | Delete and Suspend share the confirmation "Are you sure you want to update status of this user?". It doesn't say the user will be deleted. | Medium | **Reproduced** |
+| BUG-03 | A suspended user's panel still shows **Suspend**, with no Reactivate, Unsuspend or Activate option anywhere. | Medium (or missing feature) | **Reproduced** |
+| Q-01 | "Send email invite" is still clickable for suspended users. Is that intended? | Question | **Confirmed** clickable |
 
 ## Automation summary
 

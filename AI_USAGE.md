@@ -31,7 +31,7 @@ Each of these came from a real failed run. They're why I'm confident the tests c
 
 1. **Strict-mode violation on login.** `getByLabel(/password/i)` matched both the password input and the show/hide-password button. I changed it to the exact label `/^password\*?$/i`.
 2. **Wrong login button name.** The guessed `/log in|sign in/` didn't match. `error-context.md` showed the button is named `"Login"`, so I switched to an exact match.
-3. **TC-02 failed: expected Invited, received Pending.** We reproduced it by hand in Chrome. The invite is sent (after a reload the status is Invited and the counter shows 1), but the list doesn't refresh. I logged this as **BUG-01**, and the test now reloads before asserting so it checks the saved state.
+3. **TC-02 failed: expected Invited, received Pending.** The invite is sent (after a reload the status is Invited and the counter shows 1). The test now reloads before asserting so it checks the saved state. When I later checked by hand, I could **not** reproduce the stale status, so I downgraded **BUG-01** to intermittent and timing-related.
 
 ## My changes and judgment calls
 
@@ -39,6 +39,7 @@ Each of these came from a real failed run. They're why I'm confident the tests c
 - Stopped at 4 automated tests, adding Suspend as the 4th so that every status reachable without an inbox is covered.
 - Treated login as a setup step, not a test case, since it is outside the Manage Users scope.
 - Broke the Suspend assertion on purpose to confirm the suite catches failures before trusting the green runs.
+- Re-tested the AI-reported bugs by hand: confirmed BUG-02 and BUG-03 (and that Send email invite stays enabled for suspended users), but could not reproduce BUG-01
 
 ## Main prompts (summarized)
 

@@ -50,4 +50,4 @@ utils/test-data.ts       unique email generator
 
 ## Known issues
 
-TC-02 reloads the page before asserting, because the list doesn't refresh after Add User with an invite (BUG-01 in the test plan). The test checks the saved state, and the bug is reported rather than hidden.
+TC-02 reloads the page before asserting. In automated runs the list still showed Pending right after saving, but I couldn't reproduce that by hand (BUG-01 in the test plan, marked intermittent). The reload makes the test check the saved state instead of depending on timing.
