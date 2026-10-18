@@ -1,0 +1,46 @@
+# AI Usage
+
+I used **Claude (Anthropic)** as an AI assistant throughout this assessment, in a single conversation in the Claude app. With my permission, Claude could do three things: drive a Chrome tab where I was already logged in to SnippetSentry, read and write files in this project folder, and read the assessment PDF. It could not run commands on my machine. I ran every install, test run and git command myself.
+
+No separate skill, prompt or instruction files were used. All direction happened in the conversation, and the main prompts are summarized below.
+
+## What Claude did
+
+| Area | What Claude did |
+|---|---|
+| **Reading the brief** | Summarized the assessment and proposed a plan and time budget: explore, write the test plan, automate, then package. |
+| **Project setup** | Gave the scaffolding commands and wrote `playwright.config.ts` and `tests/auth.setup.ts` (login once, saved session reused by every test). |
+| **Exploration** | Drove Chrome to inspect the Users page: Add User form, status filter, Modify User panel, Bulk Invite dialog, Suspend and Delete confirmations. It created throwaway users with my `+tag` emails, invited, suspended and deleted them, and read `data-testid` attributes from the page. **I approved each step that changed data or sent email before Claude did it.** |
+| **Automation code** | Wrote `pages/users-page.ts` (page object), `fixtures.ts` (custom fixture with automatic cleanup), `utils/test-data.ts`, and the four spec files, writing them directly into this folder. |
+| **Debugging** | Read the failure screenshots and `error-context.md` files from my runs and proposed fixes (details below). |
+| **Test plan** | Drafted `TEST_PLAN.md` from what we observed while exploring. |
+| **Docs** | Drafted this file and `README.md`. |
+
+## What I did
+
+- Set up my account, Node, Git and the Playwright project, and kept credentials in a git-ignored `.env`.
+- Chose Playwright with TypeScript, and set the scope: UI-only assertions, no inbox checks, 4 tests within the required 3–5.
+- Ran every test locally and fed the real output back to Claude.
+- Approved or declined each action that would create, invite, suspend or delete users on the dev environment.
+- Verified that the tests can actually fail: I changed the Suspend assertion to expect `Active`, confirmed it failed with `Expected "Active" / Received "Suspended"`, then restored it.
+- Reviewed and edited the test plan (see "My changes" below).
+
+## Debugging history
+
+Each of these came from a real failed run. They're why I'm confident the tests check what they claim to.
+
+1. **Strict-mode violation on login.** `getByLabel(/password/i)` matched both the password input and the show/hide-password button. I changed it to the exact label `/^password\*?$/i`.
+2. **Wrong login button name.** The guessed `/log in|sign in/` didn't match. `error-context.md` showed the button is named `"Login"`, so I switched to an exact match.
+3. **TC-02 failed: expected Invited, received Pending.** We reproduced it by hand in Chrome. The invite is sent (after a reload the status is Invited and the counter shows 1), but the list doesn't refresh. I logged this as **BUG-01**, and the test now reloads before asserting so it checks the saved state.
+
+## My changes and judgment calls
+
+- Dropped inbox/email verification from automation and limited assertions to what the UI shows, to keep the suite simple and reliable.
+- Stopped at 4 automated tests, adding Suspend as the 4th so that every status reachable without an inbox is covered.
+- Treated login as a setup step, not a test case, since it is outside the Manage Users scope.
+- Broke the Suspend assertion on purpose to confirm the suite catches failures before trusting the green runs.
+
+## Main prompts (summarized)
+
+1. "Create tests for Add User and Bulk Invite for now." (Claude explored in Chrome first, then wrote the code.)
+2. "Don't worry about checking Gmail. Whatever is automatable from the UI, automate simply."
