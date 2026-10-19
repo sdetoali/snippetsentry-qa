@@ -1,12 +1,11 @@
 {
   "name": "snippetsentry-qa",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {},
+  "scripts": { "test": "playwright test" },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "SnippetSentry Manage Users test plan and Playwright UI automation",
   "devDependencies": {
     "@playwright/test": "^1.64.1",
     "@types/node": "^26.6.5"

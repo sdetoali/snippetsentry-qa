@@ -23,7 +23,6 @@ cp .env.example .env   # Windows: copy .env.example .env; then fill in SS_EMAIL 
 ```bash
 npx playwright test            # headless; 1 setup step + 4 tests
 npx playwright test --headed   # watch it run
-npx playwright test --ui       # interactive debugging
 npx playwright show-report     # HTML report with an evidence screenshot per test
 ```
 
@@ -31,7 +30,7 @@ Each run creates users with plus-addressed emails based on `SS_EMAIL` (e.g. `you
 
 ## Debugging
 
-- `npx playwright test --ui` to step through tests and pick locators interactively
+- Add `await page.pause();` just before the failing line and run with `--headed`: the test stops there and opens the Playwright Inspector to inspect the page and try locators (remove it before committing). `npx playwright test --debug` does the same from the first step.
 - `npx playwright show-trace test-results/<test>/trace.zip` for a full replay of a failed run (traces are kept on failure)
 - `error-context.md` in `test-results/` lists the page's accessible elements at the moment of failure
 - Failure screenshots are attached to the HTML report automatically
@@ -39,7 +38,7 @@ Each run creates users with plus-addressed emails based on `SS_EMAIL` (e.g. `you
 ## Layout
 
 ```
-tests/auth.setup.ts      logs in once and saves the session (a prerequisite, not a test case)
+setup/auth.setup.ts      logs in once and saves the session (a prerequisite, not a test case)
 tests/*.spec.ts          one file per feature; titles start with the test plan ID
 pages/users-page.ts      page object: locators and actions for the Users page
 fixtures.ts              provides `usersPage` to each test and handles cleanup
@@ -55,7 +54,3 @@ utils/test-data.ts       unique email generator
 - **No false positives.** Status is asserted on the status cell, not the whole row, so a user named "Pending" can't fake a pass. Each assertion was deliberately broken once to confirm it fails.
 - **`workers: 1`.** All tests share one dev account and user list, so they run one at a time.
 - **Minimal comments.** Names explain the *what* (`statusOf`, `suspendUser`); comments only explain a non-obvious *why*.
-
-## Known issues
-
-TC-02 reloads the page before asserting. In automated runs the list still showed Pending right after saving, but I couldn't reproduce that by hand (BUG-01 in the test plan, marked intermittent). The reload makes the test check the saved state instead of depending on timing.

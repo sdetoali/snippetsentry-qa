@@ -11,7 +11,7 @@ No separate skill, prompt or instruction files were used. All direction happened
 | **Reading the brief** | Summarized the assessment and proposed a plan and time budget: explore, write the test plan, automate, then package. |
 | **Project setup** | Gave the scaffolding commands and wrote `playwright.config.ts` and `setup/auth.setup.ts` (login once, saved session reused by every test). |
 | **Exploration** | Drove Chrome to inspect the Users page: Add User form, status filter, Modify User panel, Bulk Invite dialog, Suspend and Delete confirmations. It created throwaway users with my `+tag` emails, invited, suspended and deleted them, and read `data-testid` attributes from the page. It did this under my direction, using only throwaway users it created. |
-| **Automation code** | Wrote `pages/users-page.ts` (page object), `fixtures.ts` (custom fixture with automatic cleanup), `utils/test-data.ts`, and the four spec files, writing them directly into this folder. |
+| **Automation code** | Wrote `pages/users-page.ts` (page object), `fixtures.ts` (custom fixture with automatic cleanup), `utils/test-data.ts`, and the three spec files, writing them directly into this folder. |
 | **Debugging** | Read the failure screenshots and `error-context.md` files from my runs and proposed fixes (details below). |
 | **Test plan** | Drafted `TEST_PLAN.md` from what we observed while exploring. |
 | **Docs** | Drafted this file and `README.md`. |
