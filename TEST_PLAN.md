@@ -12,12 +12,12 @@ Out of scope, as the brief says: the left menu (Settings, Channel Dashboard) and
 
 Users belong to a customer account (the read-only "Customer Name" field). An admin creates users, invites them by email, and can suspend or delete them.
 
-| Status | How a user gets there | Observed? |
-|---|---|---|
-| **Pending** | Added without "Send email invite" | Yes |
-| **Invited** | An invite is sent: from Add User, from the Modify User panel, or from Bulk Invite | Yes |
-| **Active** | Presumably the user accepts the invite and sets a password | Inferred; see TC-05 |
-| **Suspended** | An admin clicks Suspend and confirms | Yes |
+| Status | What it means | How a user gets there | Observed? |
+|---|---|---|---|
+| **Pending** | Created, but no invite sent yet; can't log in | Added without "Send email invite" | Yes |
+| **Invited** | Invite sent; waiting for the user to accept | An invite is sent: from Add User, from the Modify User panel, or from Bulk Invite | Yes |
+| **Active** | Has set a password and can log in (inferred) | Presumably the user accepts the invite and sets a password | Inferred; see TC-05 |
+| **Suspended** | Blocked by an admin; presumably can't log in (inferred) | An admin clicks Suspend and confirms | Yes |
 
 Other observations:
 - Email and Customer Name are read-only after creation. First Name, Last Name, Admin and Notes can be edited.
@@ -42,7 +42,7 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 | TC-08 | Edit user persists changes; locked fields stay locked | P2 | |
 | TC-09 | Suspended user loses access and can be recovered | P1 | |
 | TC-10 | Logged-in user and last-admin protection | P1 | |
-| TC-11 | Bulk Upload: valid, invalid and mixed files | P2 | |
+| TC-11 | Bulk Upload: valid, invalid and mixed files | P3 | |
 | TC-12 | Search, status filter, record count and Export agree | P2 | |
 | TC-13 | Non-admin users cannot manage users | P1 | |
 
@@ -92,6 +92,11 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 
 **Expected:** clear errors, and no duplicate users, including case-only duplicates.
 
+**How other users affect it (planned checks):**
+- Delete a user, then add the same email again: is it allowed, and does the old history come back?
+- Bulk Invite with Pending, Invited and Active users selected together: only the selected Pending and Invited users get an email.
+- Two admins edit the same user at the same time: which save wins, and is the other admin warned?
+
 ### TC-08: Edit user persists changes; locked fields stay locked
 1. Change the first name, last name, Admin and Notes, then click Save.
 2. Reload the page and reopen the user.
@@ -124,6 +129,8 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 
 **Expected:** results, the "Showing N records" / "Filtering to N results" label, and the exported rows all match.
 
+**Observed (manual):** Search by name and email worked, and capitals gave the same results. Search combined with the Active filter correctly. Clear Filters reset both the search and the filter. Export not tested.
+
 ### TC-13: Non-admin users cannot manage users
 1. Log in as a non-admin user (created via TC-05).
 2. Open `/app/client/users` directly, and also try the actions through the API.
@@ -133,6 +140,7 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 ## Beyond functional testing
 
 - **Security:** authorization in TC-13. Input like `<script>alert(1)</script>` in the name and notes fields should be shown as plain text and never run, both in the grid and in Export. Check that users from other customer accounts can't be read.
+- **Accessibility:** keyboard-only use of the panel and dialogs, including focus moving into a dialog and back out. Check that form fields, checkboxes and buttons have meaningful screen-reader names.
 - **Usability:** confirmation text should name the action (BUG-02). A suspended user should have a visible way back (BUG-03).
 - **Performance:** the list with hundreds of users (the table is virtualized), and Bulk Invite or Upload with large selections or files.
 - **Email:** content, links and sender of the invite emails, and whether re-invites are rate-limited.
@@ -141,7 +149,7 @@ Priority: **P1** = core flow or data/security risk, **P2** = important, **P3** =
 
 | ID | Summary | Severity | Verified manually |
 |---|---|---|---|
-| BUG-01 | After Add User with "Send email invite", the list showed **Pending** instead of Invited, but only in automated runs immediately after saving. | Low (intermittent) | **Not reproduced.** By hand it showed Invited, with or without a reload
+| BUG-01 | After Add User with "Send email invite", the list showed **Pending** instead of Invited, but only in automated runs immediately after saving. | Low (intermittent) | **Not reproduced.** By hand it showed Invited, with or without a reload. Likely a short delay in refreshing the list that only shows at automation speed; needs investigation. |
 | BUG-02 | Delete and Suspend share the confirmation "Are you sure you want to update status of this user?". It doesn't say the user will be deleted. | Medium | **Reproduced** |
 | BUG-03 | A suspended user's panel still shows **Suspend**, with no Reactivate, Unsuspend or Activate option anywhere. | Medium (or missing feature) | **Reproduced** |
 | Q-01 | "Send email invite" is still clickable for suspended users. Is that intended? | Question | **Confirmed** clickable |
